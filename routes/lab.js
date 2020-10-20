@@ -4,7 +4,7 @@ var Recording = require("../models/recording");
 
 router.get("/status", function(req, res) {
   let zip_re = /^\d{5}$/gm;
-  if((!req.query.hasOwnProperty("zip"))) {
+  if((!req.query.hasOwnProperty("zip")) || (!(zip_re.test(req.query.zip)))) {
     let errormsg = {"error" : "a zip code is required."};
     res.status(400).send(JSON.stringify({ message: errormsg}));
     return;
@@ -24,8 +24,8 @@ router.get("/status", function(req, res) {
       }
       var average = sum / totalRecordNum;
       average = average.toFixed(2);
+      res.status(200).json(average);
     }
-    res.status(200).json(average);
   });
 
 });

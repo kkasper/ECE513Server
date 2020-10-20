@@ -4,7 +4,7 @@ var Recording = require("../models/recording");
 
 router.get("/status", function(req, res) {
   let zip_re = /^\d{5}$/gm;
-  if((!req.query.hasOwnProperty("zip")) || (!(zip_re.test(req.query.zip)))) {
+  if((!req.query.hasOwnProperty("zip"))) {
     let errormsg = {"error" : "a zip code is required."};
     res.status(400).send(JSON.stringify({ message: errormsg}));
     return;
@@ -31,12 +31,10 @@ router.get("/status", function(req, res) {
 });
 
 router.post('/register', function(req, res, next) {
-
  // Ensure the request includes the deviceId parameter
   if( (!req.body.hasOwnProperty("zip")) || (!req.body.hasOwnProperty("airQuality"))) {
     let errormsg = {"error" : "zip and airQuality are required."};
-    responseJson.message = errormsg;
-    return res.status(400).json(responseJson);
+    return res.status(400).json(JSON.stringify(errormsg));
   }
 
   let newRecord = new Recording({
@@ -47,9 +45,8 @@ router.post('/register', function(req, res, next) {
   // Save device. If successful, return success. If not, return error message.                          
   newRecord.save(function(err, newRecordData) {
     if (err) {
-      responseJson.status = "ERROR";
-      responseJson.message = "Error saving data in db.";
-      return res.status(201).send(JSON.stringify(responseJson));
+      let errormsg = "Error saving data in db.";
+      return res.status(201).send(JSON.stringify(errormsg));
     }
     else {
       var msg = {"response" : "Data recorded."}

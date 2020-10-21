@@ -4,7 +4,13 @@ var Recording = require("../models/recording");
 
 router.get("/status", function(req, res) {
   let zip_re = /^\d{5}$/m;
-
+  let average = 0;
+  if(!req.query.hasOwnProperty("zip"))
+  {
+    console.log("Zipcode: " + req.query.zip);
+    console.log("Test Zipcode: " + zip_re.test(req.query.zip));
+  }
+  
   if((!req.query.hasOwnProperty("zip")) || (!(zip_re.test(req.query.zip)))) {
     let errormsg = {"error" : "a zip code is required."};
     res.status(400).send(JSON.stringify({ message: errormsg}));
@@ -24,16 +30,19 @@ router.get("/status", function(req, res) {
         totalRecordNum = totalRecordNum + 1;
       }
       var averageQuality = sum / totalRecordNum;
-      let average = averageQuality.toFixed(2);
-      return res.status(200).json(average);
+      console.log("Average Quality: " + averageQuality);
     }
+  
+  average = averageQuality.toFixed(2); 
+  console.log("Average: " + average);
+  return res.status(200).json(average);
   });
 
 });
 
 router.post('/register', function(req, res, next) {
- // Ensure the request includes the deviceId parameter
-  if( (!req.body.hasOwnProperty("zip")) || (!req.body.hasOwnProperty("airQuality"))) {
+  let zip_re = /^\d{5}$/m;
+  if( (!req.body.hasOwnProperty("zip")) || (!req.body.hasOwnProperty("airQuality")) || (!(zip_re.test(req.query.zip)))) {
     let errormsg = {"error" : "zip and airQuality are required."};
     return res.status(400).json(JSON.stringify(errormsg));
   }

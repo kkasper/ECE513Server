@@ -5,11 +5,6 @@ var Recording = require("../models/recording");
 router.get("/status", function(req, res) {
   let zip_re = /^\d{5}$/m;
   let average = 0;
-  if(req.query.hasOwnProperty("zip"))
-  {
-    console.log("Zipcode: " + req.query.zip);
-    console.log("Test Zipcode: " + zip_re.test(req.query.zip));
-  }
   
   if((!req.query.hasOwnProperty("zip")) || (!(zip_re.test(req.query.zip)))) {
     let errormsg = {"error" : "a zip code is required."};
@@ -18,9 +13,10 @@ router.get("/status", function(req, res) {
   }
 
   Recording.find({zip: req.query.zip}, function(err, allRecordings) {
-    if (err) {
+    console.dir(allRecordings);
+    if (err || !allRecordings.length) {
       let errormsg = {"error" : "Zip does not exist in the database."};
-      return res.status(400).json(errormsg);
+      return res.status(400).send(errormsg);
     }
     else {
       var sum = 0;
@@ -35,22 +31,17 @@ router.get("/status", function(req, res) {
   
   average = averageQuality.toFixed(2); 
   console.log("Average: " + average);
-  return res.status(200).json(average);
+  return res.status(200).send(average);
   });
 
 });
 
 router.post('/register', function(req, res, next) {
   let zip_re = /\d{5}/m;
-  if(req.body.hasOwnProperty("zip"))
-  {
-    console.log("Zipcode: " + req.body.zip);
-    console.log("Test Zipcode: " + !(zip_re.test(req.body.zip)));
-    console.log("Test Zipcode 2: " + (zip_re.test(req.body.zip)));
-  }
-  if( (!req.body.hasOwnProperty("zip")) || (!req.body.hasOwnProperty("airQuality")) || (!(zip_re.test(req.body.zip)))) {
+
+  if( (!req.body.hasOwnProperty("zip")) || (!req.body.hasOwnProperty("airQuality")) || (!(zip_re.test(req.body.zip*1)))) {
     let errormsg = {"error" : "zip and airQuality are required."};
-    return res.status(400).json(JSON.stringify(errormsg));
+    return res.status(400).send(JSON.stringify(errormsg));
   }
 
   let newRecord = new Recording({
